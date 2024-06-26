@@ -1,11 +1,26 @@
 import { z } from 'zod';
 
+const CoordinateSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  z: z.number(),
+  direction: z.enum(['north', 'east', 'south', 'west']).optional(),
+});
+
 export const TurtlePos = z.object({
   type: z.literal('pos'),
+  data: CoordinateSchema,
+});
+
+export const WorldState = z.object({
+  type: z.literal('world'),
   data: z.object({
-    x: z.number(),
-    y: z.number(),
-    z: z.number(),
+    blocks: z.array(
+      z.object({
+        id: z.string(),
+        pos: CoordinateSchema,
+      })
+    ),
   }),
 });
 

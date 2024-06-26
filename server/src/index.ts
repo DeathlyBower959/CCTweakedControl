@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 
+import { names } from './names';
 import { ExtractKey, TTurtleDataTypes, TurtlePos } from './schema/message';
 
 import type { WebSocket } from 'ws';
@@ -17,13 +18,11 @@ const turtles: Map<
 > = new Map();
 
 wss.on('connection', turtle => {
-  const id = (turtles.size + 1).toString();
+  const id = names[turtles.size % names.length];
   console.log(`Turtle connected: ${id}`);
   turtles.set(id, { ws: turtle, data: { pos: undefined } });
 
   turtle.on('message', data => {
-    console.log(`Received message from ${id}: ${JSON.stringify(data)}`);
-
     let currTurtle = turtles.get(id);
     if (!currTurtle) return console.log(`Failed to find turtle: ${id}`);
 
@@ -34,6 +33,10 @@ wss.on('connection', turtle => {
         const dt = TurtlePos.parse(parse).data;
 
         currTurtle.data.pos = dt;
+        console.log(`POS (${id}): ${dt.x}, ${dt.y}, ${dt.z}`);
+        break;
+      default:
+        console.log(`Unhandled message from ${id}: ${data}`);
         break;
     }
   });
@@ -43,12 +46,15 @@ wss.on('connection', turtle => {
     console.log(`${id} disconnected`);
   });
 
-  turtle.send(`
-os.setComputerLabel(${id})
-local name = '${id}'
-term.clear()
-print('From mama: Welcome to the world ${id}!')
-  `);
+  turtle.send(
+    JSON.stringify({
+      type: 'exec',
+      data: `
+        local name = '${id}'
+        os.setComputerLabel(name)
+    `,
+    })
+  );
 });
 
 wss.on('listening', () => {
