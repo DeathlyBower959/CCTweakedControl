@@ -15,7 +15,10 @@
   - "assemble"
   - mutate
   - maintain (fueling)
+  - quarry/remove area
+  -
 
 ## Interface
 
 - Embedded in server
+- Controller support for moving? WASD etc?

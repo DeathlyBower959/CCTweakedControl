@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input id="turtleID" />
+    <textarea id="data"></textarea>
+    <button onclick="execute()">Exec</button>
+
+    <script>
+      function execute() {
+        const id = document.querySelector('#turtleID').value;
+        const exec = document.querySelector('#data').value;
+
+        fetch('http://localhost:3000/ws', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'exec',
+            data: exec,
+            id,
+          }),
+        });
+      }
+    </script>
+  </body>
+</html>

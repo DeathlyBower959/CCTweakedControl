@@ -28,9 +28,7 @@ Edit the `computercraft-server.toml` and comment out these lines - [guide](https
 
 ## Game Setup
 
-1. Build a gps system (preferably with ender modems) - [guide](https://tweaked.cc/guide/gps_setup.html)
-
-2. Build the configuration as below, where
+1. Build the configuration as below, where
 
    ```css
    T = Mining Turtle
@@ -41,16 +39,18 @@ Edit the `computercraft-server.toml` and comment out these lines - [guide](https
    D C
    ```
 
-3. In the `computer`, run the following command
+2. In the `computer`, run the following command
 
    ```sh
-   pastebin get uGKYiRKb disk/startup/install.lua
+   pastebin get sYqMNfpe disk/startup/install.lua
    ```
 
-4. Open the turtle, and provide it with an `ender modem` in the first inventory slot
-
-5. Open the `turtle`, and type the command
+3. Open the `turtle`, and type the command
 
    ```sh
    reboot
    ```
+
+4. Open the turtle, and follow the instructions as neccessary
+
+5. Build a gps system (preferably with ender modems) - [guide](https://tweaked.cc/guide/gps_setup.html)

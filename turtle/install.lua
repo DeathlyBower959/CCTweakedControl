@@ -1,5 +1,6 @@
+-- On floppy disk
 local pastebinID = "AhKtxL4t"
-local filename = "main.lua"
+local filename = "startup/main.lua"
 
 local url = "https://pastebin.com/raw/" .. pastebinID
 local response = http.get(url)
@@ -16,3 +17,5 @@ if response then
 else
     print("Failed to download from Pastebin.")
 end
+
+-- TODO: Fix to make hatching not install from pastebin, but a local file
