@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { WebSocketServer } from 'ws';
 
 import { names } from './names';
-import { FuelPing, TurtlePos, WorldState } from './schema/message';
+import { FuelPing, ReadyPing, TurtlePos, WorldState } from './schema/message';
 
 import type { WebSocket } from 'ws';
 import type { IFuelPing, ITurtlePos, TTurtleDataTypes } from './schema/message';
@@ -17,14 +17,20 @@ export const turtles: Map<
   string,
   {
     ws: WebSocket;
-    mother: boolean;
+    alive: boolean;
+    queen: boolean;
     data: {
-      pos: ITurtlePos['data'] | undefined;
+      pos?: ITurtlePos['data'];
 
-      fuel: IFuelPing['data'] | undefined;
+      fuel?: IFuelPing['data'];
     };
+    job?: string;
   }
 > = new Map();
+
+// Provide a number to this server, if you want to designate who the mother is via
+// computerID (use the F3 menu on the right to see the ID of a placed turtle)
+const QUEEN_ID: number | undefined = 43;
 
 wss.on('connection', ws => {
   handleTurtleConnection(ws);
@@ -38,15 +44,13 @@ function handleTurtleConnection(turtle: WebSocket) {
 
   if (turtles.size == 0) names.splice(name_idx, 1);
 
+  const exisitingTurt = turtles.get(id);
   console.log(`Turtle connected: ${name} (${id})`);
   turtles.set(id, {
     ws: turtle,
-    mother: turtles.size == 0,
-    data: {
-      pos: undefined,
-
-      fuel: undefined,
-    },
+    alive: true,
+    queen: exisitingTurt ? exisitingTurt.queen : turtles.size == 0,
+    data: exisitingTurt?.data || {},
   });
 
   turtle.on('message', data => {
@@ -62,7 +66,6 @@ function handleTurtleConnection(turtle: WebSocket) {
           const pos = TurtlePos.parse(parse).data;
 
           turt.data.pos = pos;
-          console.log(`POS (${name}): ${pos.x}, ${pos.y}, ${pos.z}`);
           break;
         case 'world':
           const blocks = WorldState.parse(parse).data.map(x => ({
@@ -77,15 +80,25 @@ function handleTurtleConnection(turtle: WebSocket) {
           turt.data.fuel = fuel;
           break;
         case 'ready':
+          const ready = ReadyPing.parse(parse).data;
+          if (QUEEN_ID != undefined) {
+            if (ready.id == QUEEN_ID) {
+              turt.queen = true;
+              turtles.set(id, turt);
+            } else {
+              turt.queen = false;
+              turtles.set(id, turt);
+            }
+          }
           turtle.send(
             JSON.stringify({
               type: 'exec',
               data: `
-                name = '${turtles.get(id)?.mother ? 'Queen ' : ''}${name}${
-                !turtles.get(id)?.mother ? ' (Worker)' : ''
+                name = '${turtles.get(id)?.queen ? 'Queen ' : ''}${name}${
+                !turtles.get(id)?.queen ? ' (Worker)' : ''
               }'
-                  os.setComputerLabel(name)
-                  `,
+                os.setComputerLabel(name)
+                `,
             })
           );
           break;
@@ -93,14 +106,16 @@ function handleTurtleConnection(turtle: WebSocket) {
           console.log(`Unhandled message from ${name}: ${data}`);
           break;
       }
+      turtles.set(id, turt);
     }
   });
 
   turtle.on('close', () => {
     const tt = turtles.get(id);
-    if (tt?.mother) names.push(name);
-    turtles.delete(id);
     console.log(`${name} disconnected`);
+    if (!tt) return console.log(`Failed to cleanup ${name}`);
+    if (tt.queen) names.push(name);
+    turtles.set(id, { ...tt, alive: false });
   });
 }
 

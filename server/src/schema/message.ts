@@ -27,7 +27,7 @@ export type IWorldState = z.infer<typeof WorldState>;
 export const ReadyPing = z.object({
   type: z.literal('ready'),
   data: z.object({
-    id: z.string(),
+    id: z.number(),
   }),
 });
 export type ISetupPing = z.infer<typeof ReadyPing>;

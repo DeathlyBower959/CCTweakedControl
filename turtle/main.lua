@@ -10,12 +10,6 @@ peripheral = peripheral
 os.sleep = os.sleep
 os.pullEvent = os.pullEvent
 os.getComputerID = os.getComputerID
-
-turt = {}
-turt.forward = turtle.forward
-turt.back = turtle.back
-turt.up = turtle.up
-turt.down = turtle.down
 -- 
 
 local websocket_url = "ws://localhost:2828"
@@ -78,21 +72,21 @@ function turtle.right()
     direction = (direction + 1) % 3
 end
 
-function turtle.forward()
+function turtle.move()
     getFuelStatus()
-    return turt.forward()
+    return turtle.forward()
 end
-function turtle.back()
+function turtle.reverse()
     getFuelStatus()
-    return turt.back()
+    return turtle.back()
 end
-function turtle.up()
+function turtle.rise()
     getFuelStatus()
-    return turt.up()
+    return turtle.up()
 end
-function turtle.down()
+function turtle.descend()
     getFuelStatus()
-    return turt.down()
+    return turtle.down()
 end
 
 function turtle.getItemIndex(name)
@@ -160,7 +154,7 @@ function turtle.hatch()
     turtle.select(floppy_disk_idx)
     turtle.drop(1)
 
-    turtle.up()
+    turtle.rise()
     turtle.dig()
     turtle.select(turtle_idx)
     turtle.place()
@@ -178,7 +172,7 @@ function turtle.hatch()
     peripheral.call("front", "reboot")
 
     turtle.digDown()
-    turtle.down()
+    turtle.descend()
     turtle.suck()
     turtle.dig()
 end
@@ -361,6 +355,7 @@ turtle.equipLeft()
 turtle.suckUp()
 print("Received ender modem!")
 
+turtle.select(15)
 turtle.dropUp()
 turtle.equipRight() -- Unequip item to see if we have it
 while not turtle.getItemIndex("minecraft:diamond_pickaxe") do
